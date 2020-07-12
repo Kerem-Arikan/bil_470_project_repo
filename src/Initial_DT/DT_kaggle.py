@@ -2,8 +2,8 @@ from sklearn import tree
 import pandas as pd
 
 
-train_csv = pd.read_csv("../Data/train.csv")
-test_csv = pd.read_csv("../Data/test.csv")
+train_csv = pd.read_csv("../../Data/train.csv")
+test_csv = pd.read_csv("../../Data/test.csv")
 train_data = []
 train_y = []
 maxn = 33126
