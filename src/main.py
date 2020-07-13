@@ -4,6 +4,21 @@ from scipy import signal
 import matplotlib.pyplot as plt
 import os
 from math import ceil
+from math import exp
+
+def ReLU(input):
+    return np.maximum(0, input)
+
+
+def maxpool2(input):
+    (fl, fw) = input.shape
+    res = np.zeros((ceil(fl/2), ceil(fw/2)))
+
+    for i in range(0,fl-1, 2):
+        for j in range(0, fw-1, 2):
+            res[ceil(i/2), ceil(j/2)] = input[i:i+1, j:j+1].max()
+
+    return res
 
 def generate_laplacian(num):
     kernel = np.zeros((num, num))
@@ -12,7 +27,7 @@ def generate_laplacian(num):
         for j in range(0, num):
             bool_list = [i==ceil(num/2)-1, j==ceil(num/2)-1]
             if(bool_list[0] & bool_list[1]):
-                kernel[i, j] = 2*num+1
+                kernel[i, j] = 2*num
             elif(bool_list[0] | bool_list[1]):
                 kernel[i, j] = -1
     return kernel
@@ -36,25 +51,44 @@ def hair_remove(image):
 jpeg_env = "../Data/sample_jpeg/"
 
 filenames = os.listdir(jpeg_env)
-filename = filenames[0]
+filename = "ISIC_0188432.jpg"#filenames[12]
 
 filepath = jpeg_env + filename
-img = cv2.imread(filepath)
-img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+feature_map = cv2.imread(filepath)
+feature_map = cv2.cvtColor(feature_map, cv2.COLOR_BGR2GRAY)
+init_image = feature_map
 
 ssize = 5
 lowpass = np.ones((ssize, ssize))/(ssize * ssize)
-#img = hair_remove(img)
-img = signal.convolve2d(img, lowpass)
+#feature_map = hair_remove(feature_map)
+
+laplacian = generate_laplacian(5)
+kernel = signal.convolve2d(lowpass, laplacian)
 
 
-kernel = generate_laplacian(9)
+feature_map = signal.convolve2d(feature_map, kernel)
+feature_map = ReLU(feature_map)
+feature_map = maxpool2(feature_map)
+feature_map = signal.convolve2d(feature_map, lowpass)
+feature_map = ReLU(feature_map)
+feature_map = maxpool2(feature_map)
+feature_map = signal.convolve2d(feature_map, kernel)
+feature_map = ReLU(feature_map)
+feature_map = maxpool2(feature_map)
+feature_map = signal.convolve2d(feature_map, lowpass)
+feature_map = ReLU(feature_map)
+feature_map = maxpool2(feature_map)
+#feature_map = signal.convolve2d(feature_map, kernel)
+#feature_map = ReLU(feature_map)
+#feature_map = maxpool2(feature_map)
 
-feature_map = signal.convolve2d(img, kernel)
 
 
-plt.figure()
-plt.imshow(np.uint8(img), cmap='gray', vmin=0, vmax=255)
+#(_, width) = feature_map.shape
+#feature_map = feature_map[:, ceil(width/4):ceil(3*width/4)]
+
 plt.figure()
 plt.imshow(np.uint8(feature_map), cmap='gray', vmin=0, vmax=255)
+plt.figure()
+plt.imshow(np.uint8(init_image), cmap='gray', vmin=0, vmax=255)
 plt.show()
