@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import os
 from math import ceil
 from math import exp
+from ConvolutionalLayer import ConvolutionalLayer as conv
 
 def ReLU(input):
     return np.maximum(0, input)
@@ -48,6 +49,7 @@ def hair_remove(image):
     return final_image
 
 
+
 jpeg_env = "../Data/sample_jpeg/"
 
 filenames = os.listdir(jpeg_env)
@@ -57,6 +59,11 @@ filepath = jpeg_env + filename
 feature_map = cv2.imread(filepath)
 feature_map = cv2.cvtColor(feature_map, cv2.COLOR_BGR2GRAY)
 init_image = feature_map
+(fl, fw) = feature_map.shape
+feature_map = np.array(feature_map).reshape((1, fl, fw))
+'''
+
+init_image = feature_map
 
 ssize = 5
 lowpass = np.ones((ssize, ssize))/(ssize * ssize)
@@ -65,30 +72,19 @@ lowpass = np.ones((ssize, ssize))/(ssize * ssize)
 laplacian = generate_laplacian(5)
 kernel = signal.convolve2d(lowpass, laplacian)
 
-
-feature_map = signal.convolve2d(feature_map, kernel)
-feature_map = ReLU(feature_map)
-feature_map = maxpool2(feature_map)
-feature_map = signal.convolve2d(feature_map, lowpass)
-feature_map = ReLU(feature_map)
-feature_map = maxpool2(feature_map)
-feature_map = signal.convolve2d(feature_map, kernel)
-feature_map = ReLU(feature_map)
-feature_map = maxpool2(feature_map)
-feature_map = signal.convolve2d(feature_map, lowpass)
-feature_map = ReLU(feature_map)
-feature_map = maxpool2(feature_map)
-#feature_map = signal.convolve2d(feature_map, kernel)
-#feature_map = ReLU(feature_map)
-#feature_map = maxpool2(feature_map)
-
-
-
-#(_, width) = feature_map.shape
-#feature_map = feature_map[:, ceil(width/4):ceil(3*width/4)]
-
 plt.figure()
 plt.imshow(np.uint8(feature_map), cmap='gray', vmin=0, vmax=255)
 plt.figure()
 plt.imshow(np.uint8(init_image), cmap='gray', vmin=0, vmax=255)
+plt.show()
+'''
+
+conv_layer = conv(4, 3, 0.01)
+feature_map = conv_layer.forward_prop(feature_map)
+place = conv_layer.backward_prop(feature_map)
+
+plt.figure()
+plt.imshow(np.uint8(feature_map[3]), cmap='gray', vmin=0, vmax=255)
+plt.figure()
+plt.imshow(np.uint8(init_image), vmin=0, vmax=255)
 plt.show()
