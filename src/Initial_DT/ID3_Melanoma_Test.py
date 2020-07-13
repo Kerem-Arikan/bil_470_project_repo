@@ -7,7 +7,7 @@ test_csv = pd.read_csv("../../Data/test.csv")
 train_data = []
 train_y = []
 maxn = 33126
-testn = 500
+testn = maxn
 
 patients = {}
 images = {}
