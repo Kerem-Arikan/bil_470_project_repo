@@ -26,8 +26,6 @@ class ConvolutionalLayer:
         (od, ol, ow) = loss_graident.shape
 
         assert self.kernel_count == od
-
-        rotated_kernel = np.rot90(self.kernel, 2)
         back_prop_loss = np.zeros(self.feature_map.shape)
         
         for map_idx in range(0, self.feature_map_size):
