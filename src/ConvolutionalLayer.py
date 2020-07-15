@@ -7,7 +7,7 @@ class ConvolutionalLayer:
         
         self.kernel_count = kernel_count
         self.kernel_size = kernel_size
-        self.kernel = np.random.random(size=(kernel_count, kernel_size, kernel_size)) + np.random.randint(low=-1, high=1)
+        self.kernel = np.random.random(size=(kernel_count, kernel_size, kernel_size))
         
         self.feature_map = None
         self.feature_map_size = 0
@@ -16,11 +16,12 @@ class ConvolutionalLayer:
         self.feature_map = feature_map
         (fd, fl, fw) = feature_map.shape
         self.feature_map_size = fd
-        new_feature_map = np.zeros((self.kernel_count*fd, fl, fw))
+        new_feature_map = np.zeros((self.kernel_count*fd, fl-self.kernel_size+1, fw-self.kernel_size+1))
         for feature_idx in range(0, fd):
             for kernel_idx in range(0, self.kernel_count):
-                new_feature_map[self.kernel_count * feature_idx + kernel_idx] = signal.convolve2d(feature_map[feature_idx], self.kernel[kernel_idx], mode='same')
-        return new_feature_map
+                new_feature_map[self.kernel_count * feature_idx + kernel_idx] = signal.convolve2d(feature_map[feature_idx], self.kernel[kernel_idx], mode='valid')
+        print("foward_prop bitti")
+        return self.ReLU(new_feature_map)
 
     def backward_prop(self, loss_graident):
         (od, ol, ow) = loss_graident.shape
@@ -31,9 +32,15 @@ class ConvolutionalLayer:
         for map_idx in range(0, self.feature_map_size):
             for kernel_idx in range(0, self.kernel_count):
                 rotated_kernel = np.rot90(self.kernel[kernel_idx], 2)
-                back_prop_loss[map_idx] += signal.convolve2d(rotated_kernel, loss_graident, mode='full')
-        
-                derivative = signal.convolve2d(self.feature_map[map_idx], loss_graident, mode='same')
+
+                print("test -> ", rotated_kernel.shape, loss_graident[map_idx].shape)
+                back_prop_loss[map_idx] += signal.convolve2d(loss_graident[map_idx], rotated_kernel, mode='full')
+                derivative = signal.convolve2d(self.feature_map[map_idx], loss_graident[map_idx], mode='valid')
                 self.kernel[kernel_idx] = self.kernel[kernel_idx] - self.alpha * derivative
 
+            back_prop_loss[map_idx] /= self.kernel_count
+                
         return back_prop_loss
+
+    def ReLU(self, feature_map):
+        return np.maximum(0, feature_map)
