@@ -26,7 +26,6 @@ class FullyConnectedLayer:
         beta = -0.00001
         a = np.exp(beta * input_list)
         b = np.sum(np.exp(beta * input_list))
-        print(a, ", ", b)
         return  a/b 
 
 
