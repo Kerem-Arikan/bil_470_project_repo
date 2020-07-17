@@ -1,7 +1,8 @@
 import numpy as np
 
 class FullyConnectedLayer:
-    def __init__(self, perc_count, target_count, val_list):
+    def __init__(self, perc_count, target_count, val_list, learning_rate):
+        self.alpha = learning_rate
         self.perc_count = perc_count
         self.target_count = target_count 
         self.neurons = []
@@ -31,17 +32,22 @@ class FullyConnectedLayer:
 
 
     def backward_prop(self, train_targets):
-        loss_gradient = np.zeros(shape=(self.perc_count, self.target_count))
+        loss_gradient = np.zeros(shape=(self.perc_count))
         (train_target_count) = train_targets.shape
 
         assert train_target_count == self.target_count
 
         for perc_idx in range(0, self.perc_count):
+            loss_gradient_sum = 0
             for weight_idx in range(0, self.target_count):
-                weight_gradient = (train_targets[weight_idx] - self.final_output[weight_idx]) * self.neurons[perc_idx].input_ 
-                self.neurons[perc_idx].weights[weight_idx] -= weight_gradient
-                # todo continue here
+                loss_gradient_sum += (train_targets[weight_idx] - self.final_output[weight_idx]) * self.neurons[perc_idx].weights[weight_idx]
 
+                weight_gradient = (train_targets[weight_idx] - self.final_output[weight_idx]) * self.neurons[perc_idx].input_ 
+                self.neurons[perc_idx].weights[weight_idx] -= self.alpha * weight_gradient
+            
+            loss_gradient[perc_idx] = loss_gradient_sum
+                
+        return loss_gradient
 
                 
 
