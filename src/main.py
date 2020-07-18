@@ -6,10 +6,18 @@ import os
 from math import ceil
 from math import exp
 from ConvolutionalLayer import ConvolutionalLayer as conv
+from FullyConnectedLayer import FullyConnectedLayer as fc
 
 def ReLU(input):
     return np.maximum(0, input)
 
+def flatten(feature_map):
+    (fd, fl, fw) = feature_map.shape
+    return feature_map.reshape(fd*fl*fw) 
+
+def feature_map_size(feature_map):
+    (fd, fl, fw) = feature_map.shape
+    return fd*fl*fw
 
 def maxpool2(input):
     (fl, fw) = input.shape
@@ -62,29 +70,21 @@ init_image = feature_map
 (fl, fw) = feature_map.shape
 feature_map = np.array(feature_map).reshape((1, fl, fw))
 '''
-
-init_image = feature_map
-
-ssize = 5
-lowpass = np.ones((ssize, ssize))/(ssize * ssize)
-#feature_map = hair_remove(feature_map)
-
-laplacian = generate_laplacian(5)
-kernel = signal.convolve2d(lowpass, laplacian)
-
-plt.figure()
-plt.imshow(np.uint8(feature_map), cmap='gray', vmin=0, vmax=255)
-plt.figure()
-plt.imshow(np.uint8(init_image), cmap='gray', vmin=0, vmax=255)
-plt.show()
-'''
-
 conv_layer = conv(4, 3, 0.01)
 feature_map = conv_layer.forward_prop(feature_map)
 place = conv_layer.backward_prop(feature_map)
-
+'''
+'''
 plt.figure()
 plt.imshow(np.uint8(feature_map[3]), cmap='gray', vmin=0, vmax=255)
 plt.figure()
 plt.imshow(np.uint8(init_image), vmin=0, vmax=255)
 plt.show()
+'''
+feature_map = feature_map / 255
+fcl = fc(feature_map_size(feature_map), 2, 0.01)
+pred = fcl.forward_prop(flatten(feature_map))
+print(pred)
+loss_grad = fcl.backward_prop(np.array([1, 0]))
+fcl = None
+print(loss_grad)
