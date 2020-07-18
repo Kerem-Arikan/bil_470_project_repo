@@ -18,12 +18,11 @@ class FullyConnectedLayer:
 
         for perc_idx in range(0, self.perc_count):
             self.output_layer += self.neurons[perc_idx].calc_output(input_list[perc_idx])
-        
         self.final_output = self.softmax(self.output_layer)
         return self.final_output
     
     def softmax(self, input_list):
-        beta = -0.00001
+        beta = -1e-5
         a = np.exp(beta * input_list)
         b = np.sum(np.exp(beta * input_list))
         return  a/b 
@@ -38,9 +37,10 @@ class FullyConnectedLayer:
         for perc_idx in range(0, self.perc_count):
             loss_gradient_sum = 0
             for weight_idx in range(0, self.target_count):
-                loss_gradient_sum += np.absolute(train_targets[weight_idx] - self.final_output[weight_idx]) * self.neurons[perc_idx].weights[weight_idx]
-                weight_gradient = (train_targets[weight_idx] - self.final_output[weight_idx]) * self.neurons[perc_idx].input_ 
-                self.neurons[perc_idx].weights[weight_idx] -= self.alpha * weight_gradient
+                loss_gradient_sum += (-train_targets[weight_idx] + self.final_output[weight_idx]) * self.neurons[perc_idx].weights[weight_idx]
+                weight_gradient = (-train_targets[weight_idx] + self.final_output[weight_idx]) * self.neurons[perc_idx].input_
+                #print("weight gradient", weight_gradient) 
+                self.neurons[perc_idx].weights[weight_idx] += self.alpha * weight_gradient
             loss_gradient[perc_idx] = loss_gradient_sum
                 
         return loss_gradient
@@ -51,7 +51,7 @@ class Perceptron:
     def __init__(self, weight_count):
         self.output = 0
         self.weight_count = weight_count
-        self.weights = np.random.random((weight_count))
+        self.weights = np.zeros((weight_count))
     
     def ReLU(self, input_):
         return max([0, input_])

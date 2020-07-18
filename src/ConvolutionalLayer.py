@@ -20,26 +20,21 @@ class ConvolutionalLayer:
         for feature_idx in range(0, fd):
             for kernel_idx in range(0, self.kernel_count):
                 new_feature_map[self.kernel_count * feature_idx + kernel_idx] = signal.convolve2d(feature_map[feature_idx], self.kernel[kernel_idx], mode='valid')
-        print("foward_prop bitti")
         return self.ReLU(new_feature_map)
 
     def backward_prop(self, loss_graident):
         (od, ol, ow) = loss_graident.shape
 
-        assert self.kernel_count == od
+        assert self.kernel_count*self.feature_map_size == od
         back_prop_loss = np.zeros(self.feature_map.shape)
         
         for map_idx in range(0, self.feature_map_size):
             for kernel_idx in range(0, self.kernel_count):
                 rotated_kernel = np.rot90(self.kernel[kernel_idx], 2)
-
-                print("test -> ", rotated_kernel.shape, loss_graident[map_idx].shape)
                 back_prop_loss[map_idx] += signal.convolve2d(loss_graident[map_idx], rotated_kernel, mode='full')
                 derivative = signal.convolve2d(self.feature_map[map_idx], loss_graident[map_idx], mode='valid')
-                self.kernel[kernel_idx] = self.kernel[kernel_idx] - self.alpha * derivative
+                self.kernel[kernel_idx] += self.alpha * derivative 
 
-            back_prop_loss[map_idx] /= self.kernel_count
-                
         return back_prop_loss
 
     def ReLU(self, feature_map):
