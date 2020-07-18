@@ -23,7 +23,7 @@ class FullyConnectedLayer:
         return self.final_output
     
     def softmax(self, input_list):
-        beta = -0.00001
+        beta = -1e-5
         a = np.exp(beta * input_list)
         b = np.sum(np.exp(beta * input_list))
         return  a/b 

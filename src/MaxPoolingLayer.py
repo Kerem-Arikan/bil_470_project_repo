@@ -17,8 +17,10 @@ class MaxPooling(object):
         self.feature_map = feature_map
         (fd, fl, fw) = feature_map.shape
         self.feature_map_size = fd
+
         new_feature_map = np.zeros(((fd, round(fl/self.subset_size), round(fw/self.subset_size))))
         self.Coordinates = np.zeros((fd, fl, fw))
+
         for i in range(fd):
             new_feature_map[i] = skimage.measure.block_reduce(feature_map[i], (self.subset_size,self.subset_size), np.max)
             self.Coordinates[i] = np.equal(feature_map[i], new_feature_map[i].repeat(self.subset_size, axis=0).repeat(self.subset_size, axis=1)).astype(int)
