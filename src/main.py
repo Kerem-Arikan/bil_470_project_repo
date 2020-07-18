@@ -6,7 +6,8 @@ import os
 from math import ceil
 from math import exp
 from ConvolutionalLayer import ConvolutionalLayer as conv
-
+from MaxPoolingLayer import MaxPooling as mpool
+from FullyConnectedLayer import FullyConnectedLayer as fc
 def ReLU(input):
     return np.maximum(0, input)
 
@@ -48,19 +49,23 @@ def hair_remove(image):
 
     return final_image
 
-
+def flatten(feature_map):
+    (fd, fl, fw) = feature_map.shape
+    return feature_map.reshape(fd*fl*fw)
 
 jpeg_env = "../Data/sample_jpeg/"
 
 filenames = os.listdir(jpeg_env)
-filename = "ISIC_0188432.jpg"#filenames[12]
+filename = "ISIC_0074268.jpg"#filenames[12]
 
 filepath = jpeg_env + filename
 feature_map = cv2.imread(filepath)
+print(feature_map)
 feature_map = cv2.cvtColor(feature_map, cv2.COLOR_BGR2GRAY)
 init_image = feature_map
 (fl, fw) = feature_map.shape
 feature_map = np.array(feature_map).reshape((1, fl, fw))
+feature_map = feature_map / 255
 '''
 
 init_image = feature_map
@@ -79,12 +84,36 @@ plt.imshow(np.uint8(init_image), cmap='gray', vmin=0, vmax=255)
 plt.show()
 '''
 
-conv_layer = conv(4, 3, 0.01)
-feature_map = conv_layer.forward_prop(feature_map)
-place = conv_layer.backward_prop(feature_map)
 
-plt.figure()
-plt.imshow(np.uint8(feature_map[3]), cmap='gray', vmin=0, vmax=255)
-plt.figure()
-plt.imshow(np.uint8(init_image), vmin=0, vmax=255)
-plt.show()
+rate = 0.01
+conv_layer = conv(4, 3, rate)
+conv_layer2 = conv(4, 3, rate)
+mpool_layer =  mpool(2)
+mpool_layer2 =  mpool(2)
+
+
+feature_map = conv_layer.forward_prop(feature_map)
+
+feature_map = mpool_layer.forward_prop(feature_map)
+
+feature_map = conv_layer2.forward_prop(feature_map)
+
+feature_map = mpool_layer2.forward_prop(feature_map)
+
+fc_layer = fc(feature_map.size, 2,rate)
+
+output = fc_layer.forward_prop(flatten(feature_map))
+
+
+print(output)
+
+
+
+#
+# plt.figure()
+# plt.imshow(np.uint8(feature_map[3]), cmap='gray', vmin=0, vmax=255)
+# plt.figure()
+# plt.imshow(np.uint8(feature_map[2]), cmap='gray', vmin=0, vmax=255)
+# plt.figure()
+# plt.imshow(np.uint8(init_image), vmin=0, vmax=255)
+# plt.show()
