@@ -34,7 +34,7 @@ fc_layer = fc(258064, 2,rate)
 
 while cancer.hasSample():
 
-    feature_map = cancer.nextSample()
+    feature_map, target = cancer.nextSample()
     init_image = feature_map
     (fl, fw) = feature_map.shape
     feature_map = np.array(feature_map).reshape((1, fl, fw))
@@ -59,7 +59,7 @@ while cancer.hasSample():
     loss_gradient = conv_layer.backward_prop(loss_gradient)
 
 while healty.hasSample():
-    feature_map = healty.nextSample()
+    feature_map, target = healty.nextSample()
     init_image = feature_map
     (fl, fw) = feature_map.shape
     feature_map = np.array(feature_map).reshape((1, fl, fw))
