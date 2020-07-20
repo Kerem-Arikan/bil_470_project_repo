@@ -26,7 +26,6 @@ class MaxPooling(object):
             for j in range(nl):
                 for k in range(nw):
                     little_feature_matrix = feature_map[i][k*self.subset_size:(k+1)*self.subset_size,j*self.subset_size:(j+1)*self.subset_size]
-                    little_coor_matrix = self.Coordinates[i][k*self.subset_size:(k+1)*self.subset_size,j*self.subset_size:(j+1)*self.subset_size]
                     coor = np.where(little_feature_matrix == new_feature_map[i,k,j])
                     self.Coordinates[i,j*self.subset_size+coor[0][0],k*self.subset_size+coor[1][0]] = 1
         return new_feature_map
