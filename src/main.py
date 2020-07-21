@@ -26,8 +26,8 @@ healty = dt(csv_file="../Data/train.csv",path="../Data/train/",size=500,target=[
 
 rate = 0.01
 arr = []
-conv_layer = conv(4, 3, rate)
-conv_layer2 = conv(4, 3, rate)
+conv_layer = conv(5, 1, 3, rate)
+conv_layer2 = conv(5, 5, 5, rate)
 mpool_layer =  mpool(2)
 mpool_layer2 =  mpool(2)
 fc_layer = fc(258064, 2,rate)
