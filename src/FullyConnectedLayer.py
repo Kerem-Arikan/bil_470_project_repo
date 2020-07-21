@@ -41,7 +41,7 @@ class FullyConnectedLayer:
                 weight_gradient = (train_targets[weight_idx] - self.final_output[weight_idx]) * self.neurons[perc_idx].input_
                 self.neurons[perc_idx].weights[weight_idx] += self.alpha * weight_gradient
                 
-            loss_gradient[perc_idx] = loss_gradient_sum/2     
+            loss_gradient[perc_idx] = loss_gradient_sum   
         return loss_gradient
 
                 
