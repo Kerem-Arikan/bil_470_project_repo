@@ -22,7 +22,7 @@ class FullyConnectedLayer:
         return self.final_output
     
     def softmax(self, input_list):
-        beta = -1e-5
+        beta = -1e-7
         a = np.exp(beta * input_list)
         b = np.sum(np.exp(beta * input_list))
         return  a/b 
@@ -38,11 +38,10 @@ class FullyConnectedLayer:
             loss_gradient_sum = 0
             for weight_idx in range(0, self.target_count):
                 loss_gradient_sum += (-train_targets[weight_idx] + self.final_output[weight_idx]) * self.neurons[perc_idx].weights[weight_idx]
-                weight_gradient = (-train_targets[weight_idx] + self.final_output[weight_idx]) * self.neurons[perc_idx].input_
-                #print("weight gradient", weight_gradient) 
+                weight_gradient = (train_targets[weight_idx] - self.final_output[weight_idx]) * self.neurons[perc_idx].input_
                 self.neurons[perc_idx].weights[weight_idx] += self.alpha * weight_gradient
-            loss_gradient[perc_idx] = loss_gradient_sum
                 
+            loss_gradient[perc_idx] = loss_gradient_sum/2     
         return loss_gradient
 
                 
@@ -51,7 +50,7 @@ class Perceptron:
     def __init__(self, weight_count):
         self.output = 0
         self.weight_count = weight_count
-        self.weights = np.zeros((weight_count))
+        self.weights = np.random.uniform(size=(weight_count), low=-1, high=1)
     
     def ReLU(self, input_):
         return max([0, input_])
