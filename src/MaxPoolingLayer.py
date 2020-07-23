@@ -12,8 +12,8 @@ class MaxPooling(object):
         self.subset_size = subset_size
 
 
-    def forward_prop(self, feature_map):
 
+    def forward_prop(self, feature_map):
         self.feature_map = feature_map
         (fd, fl, fw) = feature_map.shape
         self.feature_map_size = fd
