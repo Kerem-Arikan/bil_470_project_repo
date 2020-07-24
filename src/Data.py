@@ -22,8 +22,8 @@ class Data(object):
         self.index += 1
         filepath = self.path + name + ".jpg"
         feature_map = cv2.imread(filepath)
-        feature_map = cv2.cvtColor(feature_map, cv2.COLOR_BGR2GRAY)
-        feature_map = cv2.resize(feature_map, dsize=(514,514), interpolation=cv2.INTER_CUBIC)
+        #feature_map = cv2.cvtColor(feature_map, cv2.COLOR_BGR2GRAY)
+        feature_map = cv2.resize(feature_map, dsize=(522,522), interpolation=cv2.INTER_CUBIC)
         target = [1, 0] if self.csv[self.csv.image_name == name].target.values[0] == 1 else [0, 1]
         return (feature_map, target)
 
