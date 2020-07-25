@@ -7,9 +7,10 @@ class ConvolutionalLayer:
         self.feature_map_size = kernel_count
         self.filter_count = filter_count
         self.kernel_size = kernel_size
-        self.kernel = np.random.uniform(low=-1, high=1, size=(self.filter_count, self.feature_map_size, kernel_size, kernel_size))
+        self.kernel = np.random.uniform(low=-4, high=4, size=(self.filter_count, self.feature_map_size, kernel_size, kernel_size))
         
         self.feature_map = None
+        self.output_map = None
 
     def forward_prop(self, feature_map):
         self.feature_map = feature_map
@@ -21,6 +22,7 @@ class ConvolutionalLayer:
         for filter_idx in range(0, self.filter_count):
             for kernel_idx in range(0, self.feature_map_size):
                 new_feature_map[filter_idx] += signal.convolve2d(feature_map[kernel_idx], self.kernel[filter_idx][kernel_idx], mode='valid')
+        self.output_map = self.ReLU(new_feature_map)        
         return self.ReLU(new_feature_map)
 
     def backward_prop(self, loss_graident):
@@ -40,7 +42,7 @@ class ConvolutionalLayer:
 
                 temp_fm_loss += signal.convolve2d(loss_graident[kernel_idx], rotated_kernel, mode='full')
 
-                derivative = signal.convolve2d(self.feature_map[kernel_idx], loss_graident[kernel_idx], mode='valid')    
+                derivative = signal.convolve2d(self.output_map[kernel_idx], loss_graident[kernel_idx], mode='valid')    
                 #print("DERIVATIVE\n", derivative, "\nFEATURE MAP\n", self.feature_map[kernel_idx], "\nLOSS GRADIENT\n", loss_graident[kernel_idx])
                 self.kernel[filter_idx][kernel_idx] += self.alpha * derivative 
                 
